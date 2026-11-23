@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asesmen HOTS Pendidikan Pancasila Kelas 7 - Desain by Bu Irmawati</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        garuda: {
+                            50: '#fff1f2',
+                            100: '#ffe4e6',
+                            200: '#fecdd3',
+                            500: '#f43f5e',
+                            600: '#e11d48',
+                            700: '#be123c',
+                            800: '#9f1239',
+                            900: '#881337',
+                        },
+                        emas: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Kustomisasi Animasi & Gaya Pendukung */
+        body {
+            background-color: #f8fafc;
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            user-select: none; /* Mencegah seleksi teks soal dengan mudah */
+            -webkit-user-select: none;
+        }
+
+        /* Animasi Mengambang untuk SVG Jempol & Senyum */
+        @keyframes floatBounce {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-12px) scale(1.05); }
+        }
+        .animate-float {
+            animation: floatBounce 2.2s ease-in-out infinite;
+        }
+
+        /* Animasi Denyut Merah Darurat saat Pelanggaran Tab */
+        @keyframes redPulse {
+            0%, 100% { background-color: #991b1b; }
+            50% { background-color: #dc2626; }
+        }
+        .cheating-alert-bg {
+            animation: redPulse 0.8s infinite ease-in-out;
+        }
+
+        /* Confetti Canvas */
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 60;
+        }
+
+        /* Transisi Pilihan Jawaban */
+        .option-card {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .option-card:hover {
+            transform: translateX(4px);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-slate-800 antialiased">
+
+    <!-- Canvas untuk Efek Confetti (Skor > 80) -->
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- HEADER APLIKASI (Selalu Tampil) -->
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-2">
+            <!-- Identitas Mapel -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-garuda-600 to-garuda-800 flex items-center justify-center text-white shadow-md shadow-garuda-600/20">
+                    <!-- Ikon Perisai Pancasila SVG -->
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-garuda-600 block">Kurikulum Merdeka • SMP Kelas 7</span>
+                    <h1 class="font-display font-bold text-sm sm:text-base text-slate-900 leading-tight">Pendidikan Pancasila</h1>
+                </div>
+            </div>
+
+            <!-- Panel Status Ujian (Timer & Nama Siswa saat Ujian Aktif) -->
+            <div id="exam-status-bar" class="hidden items-center gap-3">
+                <div class="hidden sm:block text-right">
+                    <p id="header-student-name" class="text-xs font-bold text-slate-800 truncate max-w-[140px]">Siswa</p>
+                    <p id="header-student-class" class="text-[11px] text-slate-500 font-medium">Kelas 7</p>
+                </div>
+                <!-- Timer Hitung Mundur -->
+                <div id="timer-badge" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-900 text-white font-mono font-bold text-sm sm:text-base shadow-inner">
+                    <svg class="w-4 h-4 text-emas-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span id="timer-display">07:00</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- KONTEN UTAMA -->
+    <main class="flex-grow max-w-4xl w-full mx-auto px-4 py-6 sm:py-8">
+
+        <!-- ========================================================= -->
+        <!-- 1. HALAMAN AWAL (FORM IDENTITAS & ATURAN UJIAN)           -->
+        <!-- ========================================================= -->
+        <section id="view-intro" class="bg-white rounded-3xl shadow-xl shadow-slate-200/60 border border-slate-100 overflow-hidden">
+            <!-- Banner Atas -->
+            <div class="bg-gradient-to-r from-garuda-700 via-garuda-600 to-rose-600 px-6 py-7 sm:px-10 sm:py-9 text-white relative overflow-hidden">
+                <div class="absolute -right-10 -top-10 w-44 h-44 rounded-full bg-white/10 blur-xl"></div>
+                <div class="relative z-10">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm text-xs font-semibold mb-3">
+                        <span>🇮🇩</span> Asesmen Formatif HOTS (10 Soal)
+                    </span>
+                    <h2 class="font-display text-2xl sm:text-3xl font-extrabold leading-tight mb-2">
+                        Kedudukan, Fungsi, dan Penerapan Pancasila dari Masa ke Masa
+                    </h2>
+                    <p class="text-rose-100 text-sm sm:text-base max-w-2xl">
+                        Pelajari ringkasan materi sesuai 3 Tujuan Pembelajaran di bawah ini, lalu isi identitasmu untuk mengerjakan 10 soal analisis HOTS.
+                    </p>
+                </div>
+            </div>
+
+            <div class="p-6 sm:p-10 space-y-8">
+
+                <!-- ===================================================== -->
+                <!-- BAGIAN RINGKASAN MATERI INTERAKTIF (3 TUJUAN PEMBELAJARAN) -->
+                <!-- ===================================================== -->
+                <div class="space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                        <div>
+                            <span class="text-xs font-bold uppercase tracking-wider text-garuda-600">Bahan Belajar Mandiri</span>
+                            <h3 class="font-display text-lg sm:text-xl font-extrabold text-slate-900">Ringkasan Materi 3 Tujuan Pembelajaran</h3>
+                        </div>
+                        <span class="text-xs text-slate-500 font-medium">Klik tab tujuan pembelajaran di bawah untuk membaca</span>
+                    </div>
+
+                    <!-- Navigasi Tab 3 Tujuan Pembelajaran -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5" id="material-tabs">
+                        <button type="button" onclick="switchMaterialTab(1)" id="mat-tab-1"
+                            class="mat-tab-btn text-left p-3.5 rounded-2xl border-2 border-garuda-600 bg-rose-50/70 transition cursor-pointer">
+                            <span class="inline-block px-2 py-0.5 rounded-md bg-garuda-600 text-white text-[11px] font-bold mb-1">Tujuan 1</span>
+                            <p class="font-display font-bold text-xs sm:text-sm text-slate-900 leading-snug">Dasar Negara & Pandangan Hidup</p>
+                        </button>
+                        <button type="button" onclick="switchMaterialTab(2)" id="mat-tab-2"
+                            class="mat-tab-btn text-left p-3.5 rounded-2xl border-2 border-slate-200 hover:border-garuda-300 bg-white transition cursor-pointer">
+                            <span class="inline-block px-2 py-0.5 rounded-md bg-slate-200 text-slate-700 text-[11px] font-bold mb-1">Tujuan 2</span>
+                            <p class="font-display font-bold text-xs sm:text-sm text-slate-900 leading-snug">Fungsi Ideologi Negara</p>
+                        </button>
+                        <button type="button" onclick="switchMaterialTab(3)" id="mat-tab-3"
+                            class="mat-tab-btn text-left p-3.5 rounded-2xl border-2 border-slate-200 hover:border-garuda-300 bg-white transition cursor-pointer">
+                            <span class="inline-block px-2 py-0.5 rounded-md bg-slate-200 text-slate-700 text-[11px] font-bold mb-1">Tujuan 3</span>
+                            <p class="font-display font-bold text-xs sm:text-sm text-slate-900 leading-snug">Penerapan dari Masa ke Masa</p>
+                        </button>
+                    </div>
+
+                    <!-- Konten Materi Tab 1: Dasar Negara & Pandangan Hidup -->
+                    <div id="mat-content-1" class="mat-content-panel bg-slate-50 rounded-2xl p-5 sm:p-6 border border-slate-200/80 space-y-4">
+                        <h4 class="font-display font-bold text-base sm:text-lg text-garuda-800">
+                            1. Fungsi & Kedudukan Pancasila sebagai Dasar Negara dan Pandangan Hidup
+                        </h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            <div class="bg-white p-4 rounded-xl border border-slate-200/70 space-y-2 shadow-sm">
+                                <div class="flex items-center gap-2 font-bold text-slate-900">
+                                    <span class="w-7 h-7 rounded-lg bg-rose-100 text-garuda-700 flex items-center justify-center text-xs font-extrabold">A</span>
+                                    <span>Sebagai Dasar Negara</span>
+                                </div>
+                                <p class="text-slate-600 leading-relaxed">
+                                    Pancasila adalah <strong>kaidah negara yang fundamental</strong> (<em>staatsfundamentalnorm</em>) dan <strong>sumber dari segala sumber hukum</strong> di Indonesia.
+                                </p>
+                                <ul class="list-disc list-inside text-xs text-slate-600 space-y-1 pt-1">
+                                    <li>Menjadi dasar penyelenggaraan pemerintahan dan ketatanegaraan.</li>
+                                    <li>Seluruh undang-undang hingga peraturan daerah wajib bersumber dan tidak boleh bertentangan dengan nilai Pancasila.</li>
+                                </ul>
+                            </div>
+                            <div class="bg-white p-4 rounded-xl border border-slate-200/70 space-y-2 shadow-sm">
+                                <div class="flex items-center gap-2 font-bold text-slate-900">
+                                    <span class="w-7 h-7 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center text-xs font-extrabold">B</span>
+                                    <span>Sebagai Pandangan Hidup Bangsa</span>
+                                </div>
+                                <p class="text-slate-600 leading-relaxed">
+                                    Pancasila berfungsi sebagai <strong>pedoman perilaku sehari-hari</strong> (<em>way of life</em>) bagi seluruh warga negara Indonesia.
+                                </p>
+                                <ul class="list-disc list-inside text-xs text-slate-600 space-y-1 pt-1">
+                                    <li>Menjadi petunjuk arah dalam memecahkan masalah sosial, budaya, dan pergaulan di sekolah maupun masyarakat.</li>
+                                    <li>Contoh: musyawarah mufakat, toleransi umat beragama, dan gotong royong.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Konten Materi Tab 2: Ideologi Negara -->
+                    <div id="mat-content-2" class="mat-content-panel hidden bg-slate-50 rounded-2xl p-5 sm:p-6 border border-slate-200/80 space-y-4">
+                        <h4 class="font-display font-bold text-base sm:text-lg text-garuda-800">
+                            2. Fungsi Pancasila sebagai Ideologi Negara (Ideologi Terbuka)
+                        </h4>
+                        <p class="text-sm text-slate-700 leading-relaxed">
+                            Sebagai <strong>ideologi negara</strong>, Pancasila merupakan cita-cita dan tujuan bersama bangsa Indonesia yang digali dari akar budaya bangsa sendiri, sehingga mampu menjadi <strong>pemersatu keberagaman</strong> sekaligus <strong>filter (penyaring)</strong> terhadap pengaruh negatif globalisasi.
+                        </p>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs sm:text-sm">
+                            <div class="bg-white p-4 rounded-xl border border-slate-200/70 space-y-1.5 shadow-sm">
+                                <span class="inline-block px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 font-bold text-xs">Dimensi Idealisme</span>
+                                <p class="text-slate-600 leading-relaxed">
+                                    Nilai-nilai dasar Pancasila (Ketuhanan, Kemanusiaan, Persatuan, Kerakyatan, Keadilan) bersifat tetap, luhur, dan memberi harapan masa depan.
+                                </p>
+                            </div>
+                            <div class="bg-white p-4 rounded-xl border border-slate-200/70 space-y-1.5 shadow-sm">
+                                <span class="inline-block px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-xs">Dimensi Normatif</span>
+                                <p class="text-slate-600 leading-relaxed">
+                                    Nilai dasar dijabarkan ke dalam sistem norma hukum seperti UUD NRI Tahun 1945 dan berbagai peraturan perundang-undangan.
+                                </p>
+                            </div>
+                            <div class="bg-white p-4 rounded-xl border border-slate-200/70 space-y-1.5 shadow-sm">
+                                <span class="inline-block px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold text-xs">Dimensi Realitas</span>
+                                <p class="text-slate-600 leading-relaxed">
+                                    Pancasila hidup dan diterapkan secara nyata dalam perilaku sehari-hari (nilai praksis) yang selaras dengan perkembangan zaman.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Konten Materi Tab 3: Implementasi dari Masa ke Masa -->
+                    <div id="mat-content-3" class="mat-content-panel hidden bg-slate-50 rounded-2xl p-5 sm:p-6 border border-slate-200/80 space-y-4">
+                        <h4 class="font-display font-bold text-base sm:text-lg text-garuda-800">
+                            3. Implementasi Pancasila dalam Kehidupan Bernegara dari Masa ke Masa
+                        </h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs sm:text-sm">
+                            <div class="bg-white p-4 rounded-xl border-l-4 border-rose-600 shadow-sm space-y-1">
+                                <span class="font-bold text-rose-700 block">1) Masa Awal Kemerdekaan (1945–1959)</span>
+                                <p class="text-slate-600 leading-relaxed">
+                                    Menghadapi upaya penggantian dasar negara Pancasila oleh pemberontakan PKI Madiun 1948 dan DI/TII, serta dinamika pergantian konstitusi (UUD 1945 → Konstitusi RIS → UUDS 1950).
+                                </p>
+                            </div>
+                            <div class="bg-white p-4 rounded-xl border-l-4 border-amber-600 shadow-sm space-y-1">
+                                <span class="font-bold text-amber-700 block">2) Masa Orde Lama (1959–1966)</span>
+                                <p class="text-slate-600 leading-relaxed">
+                                    Berlakunya Demokrasi Terpimpin pasca Dekrit Presiden 5 Juli 1959. Terjadi penyimpangan berupa pemusatan kekuasaan pada Presiden, pengangkatan Presiden seumur hidup, dan pembubaran DPR hasil pemilu.
+                                </p>
+                            </div>
+                            <div class="bg-white p-4 rounded-xl border-l-4 border-blue-600 shadow-sm space-y-1">
+                                <span class="font-bold text-blue-700 block">3) Masa Orde Baru (1966–1998)</span>
+                                <p class="text-slate-600 leading-relaxed">
+                                    Melaksanakan Pancasila melalui penataran P4 (Ekaprasetya Pancakarsa) dan sukses membangun ekonomi, namun kebebasan berpendapat dibatasi ketat, pemerintahan sentralistik, dan marak praktik KKN.
+                                </p>
+                            </div>
+                            <div class="bg-white p-4 rounded-xl border-l-4 border-emerald-600 shadow-sm space-y-1">
+                                <span class="font-bold text-emerald-700 block">4) Masa Reformasi (1998–Sekarang)</span>
+                                <p class="text-slate-600 leading-relaxed">
+                                    Kebebasan berpendapat, pers, dan pemilu langsung terbuka luas. Tantangan utama saat ini adalah kebebasan kebablasan di ruang digital seperti hoaks, ujaran kebencian, perundungan, dan radikalisme.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Peringatan Sistem Pengawas Ketat -->
+                <div class="bg-amber-50 border-l-4 border-amber-500 rounded-r-2xl p-4 sm:p-5">
+                    <div class="flex items-start gap-3">
+                        <div class="p-2 bg-amber-100 rounded-xl text-amber-700 shrink-0 mt-0.5">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                        </div>
+                        <div class="text-sm text-amber-900 space-y-1.5">
+                            <p class="font-bold text-base">Perhatian! Sistem Pengawas Kejujuran Aktif:</p>
+                            <ul class="list-disc list-inside space-y-1 text-amber-800">
+                                <li>Waktu pengerjaan hanya <strong>7 menit (07:00)</strong> untuk <strong>10 soal PG HOTS</strong>.</li>
+                                <li>Begitu tombol <strong>Mulai Mengerjakan</strong> ditekan, sistem ujian langsung aktif.</li>
+                                <li><strong>DILARANG pindah tab browser, membuka aplikasi lain, atau meminimalkan layar!</strong> Jika melanggar, layar otomatis menjadi <strong>MERAH, bunyi alarm berdering keras, dan ujian langsung GAGAL</strong>.</li>
+                                <li>Target nilai tuntas: <strong>Di atas 80</strong> (90 atau 100).</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kotak Pesan Validasi Form (Pengganti alert) -->
+                <div id="form-error-box" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-2">
+                    <svg class="w-5 h-5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span id="form-error-text">Silakan isi Nama Lengkap dan Kelas terlebih dahulu!</span>
+                </div>
+
+                <!-- Form Identitas Siswa -->
+                <form id="identity-form" class="space-y-5" novalidate>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="sm:col-span-2">
+                            <label for="input-nama" class="block text-sm font-bold text-slate-700 mb-1.5">
+                                Nama Lengkap Siswa <span class="text-garuda-600">*</span>
+                            </label>
+                            <input type="text" id="input-nama" placeholder="Contoh: Ahmad Rizki Pratama" autocomplete="off"
+                                class="w-full px-4 py-3.5 rounded-xl border border-slate-300 focus:border-garuda-600 focus:ring-4 focus:ring-garuda-600/10 outline-none transition font-medium text-slate-800 placeholder:text-slate-400">
+                        </div>
+                        <div>
+                            <label for="input-kelas" class="block text-sm font-bold text-slate-700 mb-1.5">
+                                Kelas <span class="text-garuda-600">*</span>
+                            </label>
+                            <select id="input-kelas"
+                                class="w-full px-4 py-3.5 rounded-xl border border-slate-300 focus:border-garuda-600 focus:ring-4 focus:ring-garuda-600/10 outline-none transition font-medium text-slate-800 bg-white">
+                                <option value="">-- Pilih Kelas --</option>
+                                <option value="VII-A">Kelas VII-A</option>
+                                <option value="VII-B">Kelas VII-B</option>
+                                <option value="VII-C">Kelas VII-C</option>
+                                <option value="VII-D">Kelas VII-D</option>
+                                <option value="VII-E">Kelas VII-E</option>
+                                <option value="VII-F">Kelas VII-F</option>
+                                <option value="VII-G">Kelas VII-G</option>
+                                <option value="VII-H">Kelas VII-H</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="btn-start-quiz"
+                        class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-garuda-600 to-garuda-700 hover:from-garuda-700 hover:to-garuda-800 text-white font-display font-bold text-base sm:text-lg shadow-lg shadow-garuda-600/25 active:scale-[0.99] transition flex items-center justify-center gap-2.5 cursor-pointer">
+                        <span>Mulai Mengerjakan Sekarang</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- 2. HALAMAN SOAL UJIAN AKTIF (10 SOAL PG HOTS)             -->
+        <!-- ========================================================= -->
+        <section id="view-quiz" class="hidden space-y-6">
+            <!-- Bar Progres Pengerjaan -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+                    <span>Sesi Ujian Aktif — Jangan tinggalkan halaman ini!</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span id="answered-counter" class="text-xs font-bold px-3 py-1 rounded-lg bg-slate-100 text-slate-700">
+                        Terjawab: 0 / 10
+                    </span>
+                    <div class="w-28 h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                        <div id="progress-bar-fill" class="h-full bg-garuda-600 transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Wadah Render 10 Soal PG HOTS -->
+            <div id="questions-container" class="space-y-6">
+                <!-- Diisi dinamis oleh JavaScript -->
+            </div>
+
+            <!-- Tombol Kumpulkan Jawaban -->
+            <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-lg text-center space-y-3">
+                <p id="submit-warning-msg" class="hidden text-sm font-semibold text-amber-600">
+                    Masih ada soal yang belum dijawab. Pastikan semua nomor sudah dipilih sebelum mengumpulkan!
+                </p>
+                <button type="button" id="btn-submit-quiz"
+                    class="w-full sm:w-auto min-w-[260px] py-4 px-8 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-display font-bold text-base sm:text-lg shadow-lg shadow-emerald-600/25 active:scale-[0.99] transition inline-flex items-center justify-center gap-2 cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <span>Selesai & Kirim Jawaban</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- 3. HALAMAN GAGAL PELANGGARAN TAB (MERAH & ALARM)          -->
+        <!-- ========================================================= -->
+        <section id="view-cheated" class="hidden rounded-3xl overflow-hidden shadow-2xl border-4 border-red-300 cheating-alert-bg text-white p-6 sm:p-12 text-center space-y-6">
+            <div class="w-24 h-24 mx-auto rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border-2 border-white animate-bounce">
+                <svg class="w-14 h-14 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+            </div>
+
+            <div class="space-y-2">
+                <span class="inline-block px-4 py-1 rounded-full bg-black/30 text-xs font-extrabold tracking-widest uppercase">
+                    Pelanggaran Terdeteksi • Sistem Mengunci Ujian
+                </span>
+                <h2 class="font-display text-3xl sm:text-5xl font-black tracking-tight">
+                    UJIAN GAGAL!
+                </h2>
+                <p class="text-red-100 text-base sm:text-lg max-w-xl mx-auto font-medium">
+                    Kamu terdeteksi beralih ke tab baru, membuka jendela lain, atau meninggalkan halaman ujian saat sesi berlangsung.
+                </p>
+            </div>
+
+            <!-- Kartu Ringkasan Pelanggar -->
+            <div class="max-w-md mx-auto bg-black/25 backdrop-blur-sm rounded-2xl p-5 border border-white/20 text-left space-y-2 text-sm">
+                <div class="flex justify-between">
+                    <span class="text-red-200">Nama Siswa:</span>
+                    <span id="cheat-student-name" class="font-bold">-</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-red-200">Kelas:</span>
+                    <span id="cheat-student-class" class="font-bold">-</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-red-200">Status Nilai:</span>
+                    <span class="font-extrabold text-amber-300">0 (DISKUALIFIKASI)</span>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+                <button type="button" id="btn-stop-alarm"
+                    class="px-6 py-3 rounded-xl bg-white/20 hover:bg-white/30 text-white font-bold text-sm transition cursor-pointer">
+                    🔇 Matikan Bunyi Alarm
+                </button>
+                <button type="button" onclick="resetQuizToHome()"
+                    class="px-7 py-3.5 rounded-xl bg-white text-red-700 hover:bg-red-50 font-display font-extrabold text-sm sm:text-base shadow-lg transition cursor-pointer">
+                    Ulangi Ujian dari Awal
+                </button>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- 4. HALAMAN HASIL & UMPAN BALIK VISUAL (JEMPOL / SENYUM)    -->
+        <!-- ========================================================= -->
+        <section id="view-result" class="hidden space-y-6">
+            <!-- Kartu Utama Skor & Ilustrasi -->
+            <div id="result-hero-card" class="rounded-3xl p-6 sm:p-10 text-center shadow-xl border overflow-hidden relative">
+                
+                <!-- Wadah Ilustrasi SVG (Jempol Besar untuk > 80, Wajah Senyum Semangat untuk <= 80) -->
+                <div id="result-illustration" class="w-32 h-32 sm:w-36 sm:h-36 mx-auto mb-4 animate-float">
+                    <!-- Diisi dinamis oleh JS -->
+                </div>
+
+                <!-- Judul Ucapan -->
+                <h2 id="result-headline" class="font-display text-2xl sm:text-4xl font-black tracking-tight mb-2">
+                    SELAMAT DAN MANTAP!
+                </h2>
+                <p id="result-subheadline" class="text-sm sm:text-base max-w-xl mx-auto mb-6 font-medium">
+                    Luar biasa! Pemahamanmu tentang nilai dan penerapan Pancasila sangat baik.
+                </p>
+
+                <!-- Kotak Nilai Akhir -->
+                <div class="inline-flex flex-col items-center bg-white/90 backdrop-blur-md px-8 py-5 rounded-3xl shadow-md border border-slate-200/80 mb-6">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Nilai Akhir Kamu</span>
+                    <span id="result-score-number" class="font-display text-5xl sm:text-6xl font-black text-slate-900 my-1">100</span>
+                    <div class="flex items-center gap-3 text-xs font-bold mt-1">
+                        <span id="result-correct-count" class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800">Benar: 10</span>
+                        <span id="result-wrong-count" class="px-2.5 py-1 rounded-lg bg-rose-100 text-rose-800">Salah: 0</span>
+                    </div>
+                </div>
+
+                <!-- Detail Identitas Siswa -->
+                <div class="max-w-md mx-auto bg-white/70 rounded-2xl p-4 text-sm flex flex-wrap justify-around gap-2 border border-slate-200/60 mb-6">
+                    <div>
+                        <span class="text-slate-500">Nama:</span>
+                        <strong id="res-student-name" class="text-slate-900">-</strong>
+                    </div>
+                    <div>
+                        <span class="text-slate-500">Kelas:</span>
+                        <strong id="res-student-class" class="text-slate-900">-</strong>
+                    </div>
+                    <div>
+                        <span class="text-slate-500">Status:</span>
+                        <strong id="res-status-badge" class="text-emerald-700">TUNTAS</strong>
+                    </div>
+                </div>
+
+                <!-- Tombol Aksi -->
+                <div>
+                    <button type="button" onclick="resetQuizToHome()"
+                        id="btn-retry-result"
+                        class="px-8 py-3.5 rounded-2xl font-display font-bold text-white shadow-lg transition active:scale-[0.98] cursor-pointer">
+                        Coba Lagi
+                    </button>
+                </div>
+            </div>
+
+            <!-- Kunci Jawaban & Pembahasan Singkat -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-md border border-slate-200 space-y-5">
+                <div class="border-b border-slate-100 pb-4">
+                    <h3 class="font-display text-lg sm:text-xl font-bold text-slate-900">Evaluasi & Pembahasan Jawaban</h3>
+                    <p class="text-xs sm:text-sm text-slate-500">Pelajari kembali analisis setiap soal untuk memperkuat pemahamanmu.</p>
+                </div>
+                <div id="review-container" class="space-y-4">
+                    <!-- Diisi dinamis oleh JS -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER / WATERMARK WAJIB -->
+    <footer class="mt-auto bg-white border-t border-slate-200 py-4 px-4 text-center">
+        <p class="text-xs sm:text-sm font-semibold text-slate-600 tracking-wide">
+            Materi Pendidikan Pancasila SMP Kelas 7 • Kurikulum Merdeka
+        </p>
+        <p class="font-display font-extrabold text-sm sm:text-base text-garuda-700 mt-0.5">
+            Desain by Bu Irmawati
+        </p>
+    </footer>
+
+    <!-- ========================================================= -->
+    <!-- LOGIKA JAVASCRIPT LENGKAP                                 -->
+    <!-- ========================================================= -->
+    <script>
+        /**
+         * BANK 10 SOAL PG HOTS PENDIDIKAN PANCASILA KELAS 7 SMP
+         * Mencakup:
+         * 1. Fungsi & kedudukan Pancasila sebagai dasar negara dan pandangan hidup (Soal 1-3)
+         * 2. Fungsi Pancasila sebagai ideologi negara (Soal 4-6)
+         * 3. Implementasi Pancasila dalam kehidupan bernegara dari masa ke masa (Soal 7-10)
+         */
+        const quizQuestions = [
+            {
+                id: 1,
+                topic: "Kedudukan Pancasila sebagai Dasar Negara",
+                stimulus: "DPR bersama Pemerintah menyusun sebuah Rancangan Undang-Undang (RUU) baru tentang pengelolaan sumber daya air. Namun, dalam salah satu pasalnya ditemukan aturan yang memungkinkan pihak swasta menguasai penuh mata air desa sehingga warga kesulitan mendapatkan air bersih secara adil.",
+                question: "Berdasarkan kedudukan Pancasila sebagai dasar negara (staatsfundamentalnorm), tindakan paling tepat yang harus dilakukan terhadap RUU tersebut adalah...",
+                options: [
+                    "Tetap mengesahkan RUU tersebut demi menarik investasi asing sebesar-besarnya ke daerah",
+                    "Membatalkan atau merevisi pasal tersebut karena bertentangan dengan sila kelima Pancasila sebagai sumber dari segala sumber hukum",
+                    "Menyerahkan keputusan sepenuhnya kepada perusahaan swasta agar pengelolaan air lebih modern",
+                    "Mengubah bunyi sila kelima Pancasila agar sesuai dengan kebutuhan pasar bebas saat ini"
+                ],
+                correctIndex: 1,
+                explanation: "Sebagai dasar negara, Pancasila merupakan sumber dari segala sumber hukum. Setiap peraturan perundang-undangan yang bertentangan dengan nilai Pancasila (seperti keadilan sosial sila ke-5) wajib direvisi atau dibatalkan."
+            },
+            {
+                id: 2,
+                topic: "Pancasila sebagai Pandangan Hidup Bangsa",
+                stimulus: "Di SMP Nusantara, terjadi perbedaan pendapat yang tajam saat rapat OSIS menentukan tema pentas seni. Sebagian pengurus memaksakan kehendak agar budaya luar negeri saja yang ditampilkan dan meremehkan kesenian tradisional daerah.",
+                question: "Jika para pengurus OSIS menerapkan Pancasila sebagai pandangan hidup bangsa (way of life), sikap penyelesaian masalah yang mencerminkan fungsi tersebut adalah...",
+                options: [
+                    "Mengadakan musyawarah mufakat untuk memadukan kreativitas modern dengan kekayaan budaya Nusantara secara harmonis",
+                    "Membubarkan rapat OSIS dan membiarkan ketua OSIS memutuskan sendiri tanpa mendengarkan anggota",
+                    "Melakukan pemungutan suara tertutup lalu memusuhi kelompok yang kalah dalam rapat",
+                    "Mengikuti seluruh keinginan kelompok mayoritas demi menghindari perdebatan panjang"
+                ],
+                correctIndex: 0,
+                explanation: "Pancasila sebagai pandangan hidup menjadi pedoman perilaku sehari-hari dalam memecahkan persoalan sosial melalui musyawarah (sila ke-4) dan menghargai persatuan serta budaya bangsa (sila ke-3)."
+            },
+            {
+                id: 3,
+                topic: "Hubungan Dasar Negara dan Pandangan Hidup",
+                stimulus: "Perhatikan dua peristiwa berikut:\n(1) Mahkamah Konstitusi membatalkan pasal undang-undang yang diskriminatif terhadap penyandang disabilitas.\n(2) Warga Kampung Melati bergotong royong membangun rumah tetangga yang roboh akibat angin puting beliung.",
+                question: "Analisis yang tepat mengenai kedudukan Pancasila dalam kedua peristiwa di atas secara berurutan adalah...",
+                options: [
+                    "Peristiwa (1) pandangan hidup bangsa; Peristiwa (2) perjanjian luhur",
+                    "Peristiwa (1) dasar negara; Peristiwa (2) pandangan hidup bangsa",
+                    "Peristiwa (1) ideologi tertutup; Peristiwa (2) dasar negara",
+                    "Peristiwa (1) kepribadian bangsa; Peristiwa (2) sumber hukum tertulis"
+                ],
+                correctIndex: 1,
+                explanation: "Peristiwa (1) berkaitan dengan penyelenggaraan hukum dan ketatanegaraan (Dasar Negara), sedangkan peristiwa (2) berkaitan dengan pedoman sikap hidup bermasyarakat sehari-hari (Pandangan Hidup)."
+            },
+            {
+                id: 4,
+                topic: "Fungsi Pancasila sebagai Ideologi Negara",
+                stimulus: "Arus globalisasi membawa masuk berbagai paham baru melalui media sosial, mulai dari sikap individualisme ekstrem (mementingkan diri sendiri) hingga paham radikalisme yang menolak keberagaman bangsa Indonesia.",
+                question: "Dalam situasi tersebut, fungsi utama Pancasila sebagai ideologi negara bagi generasi muda adalah...",
+                options: [
+                    "Menutup seluruh akses internet dan informasi dari negara lain agar budaya lokal tetap murni",
+                    "Menjadi filter (penyaring) nilai-nilai asing serta kompas penunjuk arah tujuan nasional bangsa Indonesia",
+                    "Menyeragamkan seluruh hobi, pakaian, dan gaya hidup pelajar di seluruh provinsi Indonesia",
+                    "Menggantikan seluruh aturan adat istiadat daerah dengan aturan yang seragam dari pusat"
+                ],
+                correctIndex: 1,
+                explanation: "Sebagai ideologi negara, Pancasila berfungsi sebagai orientasi/tujuan bersama sekaligus filter kritis untuk menyaring nilai-nilai global yang sesuai maupun bertentangan dengan jati diri bangsa."
+            },
+            {
+                id: 5,
+                topic: "Dimensi Pancasila sebagai Ideologi Terbuka",
+                stimulus: "Pancasila mampu bertahan menghadapi perkembangan zaman karena memiliki nilai dasar yang tetap, nilai instrumental yang dapat dijabarkan dalam peraturan perundang-undangan, serta nilai praksis yang diterapkan dalam kenyataan hidup sehari-hari.",
+                question: "Contoh penerapan nilai praksis Pancasila sebagai ideologi terbuka di era digital saat ini adalah...",
+                options: [
+                    "Mengubah rumusan sila pertama Pancasila menyesuaikan perkembangan teknologi kecerdasan buatan",
+                    "Menggunakan media sosial untuk menyebarkan kampanye anti-perundungan (anti-bullying) dan donasi kemanusiaan",
+                    "Membebaskan siapa saja menyebarkan berita bohong (hoaks) atas nama kebebasan berpendapat",
+                    "Menganggap nilai gotong royong sudah kuno karena semua pekerjaan bisa dibayar dengan uang"
+                ],
+                correctIndex: 1,
+                explanation: "Nilai praksis adalah realisasi nyata nilai Pancasila dalam kehidupan sehari-hari yang dinamis mengikuti perkembangan zaman, seperti memanfaatkan teknologi digital untuk kemanusiaan dan persatuan."
+            },
+            {
+                id: 6,
+                topic: "Pancasila sebagai Pemersatu Ideologi Bangsa",
+                stimulus: "Indonesia memiliki lebih dari 1.300 suku bangsa dan 6 agama yang diakui secara resmi. Tanpa kesepakatan nilai bersama yang mengikat seluruh elemen bangsa, perbedaan yang sangat majemuk ini rawan memicu perpecahan.",
+                question: "Mengapa Pancasila disebut berfungsi sebagai pemersatu bangsa dalam kedudukannya sebagai ideologi negara?",
+                options: [
+                    "Karena Pancasila menghapus seluruh perbedaan bahasa daerah dan tradisi lokal di Nusantara",
+                    "Karena nilai-nilai Pancasila digali dari akar budaya bangsa sendiri sehingga mampu menaungi seluruh keberagaman secara adil",
+                    "Karena Pancasila memaksa seluruh warga negara memiliki pandangan politik yang sama persis",
+                    "Karena Pancasila merupakan ideologi pinjaman dari negara-negara maju di Eropa"
+                ],
+                correctIndex: 1,
+                explanation: "Pancasila digali dari nilai-nilai luhur bangsa Indonesia sendiri (kausa materialis), sehingga menjadi titik temu (common denominator) yang diterima oleh seluruh suku, agama, dan golongan."
+            },
+            {
+                id: 7,
+                topic: "Implementasi Pancasila Masa Awal Kemerdekaan (1945–1959)",
+                stimulus: "Pada periode 1945–1959, penerapan Pancasila menghadapi berbagai tantangan berat berupa pemberontakan bersenjata yang ingin mengganti dasar negara Pancasila dengan ideologi lain, seperti pemberontakan PKI di Madiun (1948) dan DI/TII.",
+                question: "Kesimpulan historis yang paling tepat mengenai dinamika penerapan Pancasila pada masa awal kemerdekaan tersebut adalah...",
+                options: [
+                    "Pancasila sudah diterapkan secara sempurna tanpa ada hambatan dari dalam maupun luar negeri",
+                    "Terdapat upaya-upaya nyata untuk mengganti Pancasila sebagai dasar negara dengan ideologi komunis maupun ideologi berbasis agama tertentu",
+                    "Pemerintah membubarkan seluruh partai politik sehingga tidak ada lagi perbedaan pendapat",
+                    "Pancasila tidak lagi tercantum dalam pembukaan konstitusi mana pun pada kurun waktu tersebut"
+                ],
+                correctIndex: 1,
+                explanation: "Pada masa 1945–1959, tantangan utama penerapan Pancasila adalah upaya penggantian dasar negara oleh gerakan separatis/ideologis seperti PKI Madiun 1948 dan DI/TII."
+            },
+            {
+                id: 8,
+                topic: "Implementasi Pancasila Masa Orde Lama (1959–1966)",
+                stimulus: "Setelah Dekrit Presiden 5 Juli 1959, Indonesia memasuki masa Demokrasi Terpimpin. Pada masa ini terjadi pemusatan kekuasaan di tangan Presiden, pengangkatan Presiden seumur hidup melalui Ketetapan MPRS, serta pembubaran DPR hasil pemilu 1955.",
+                question: "Penyimpangan utama terhadap nilai-nilai Pancasila yang terjadi pada masa Orde Lama (Demokrasi Terpimpin) berdasarkan stimulus di atas adalah...",
+                options: [
+                    "Terlalu kuatnya kebebasan pers sehingga pemerintah tidak mampu mengambil keputusan strategis",
+                    "Bergesernya pelaksanaan sila keempat dari kedaulatan rakyat berbasis musyawarah menjadi kekuasaan otoriter yang terpusat pada satu pemimpin",
+                    "Penerapan sistem ekonomi liberal yang sepenuhnya diserahkan kepada mekanisme pasar internasional",
+                    "Diberikannya otonomi seluas-luasnya kepada pemerintah daerah untuk membuat mata uang sendiri"
+                ],
+                correctIndex: 1,
+                explanation: "Pada masa Demokrasi Terpimpin (1959–1966), demokrasi bergeser menjadi otoriter karena kekuasaan terpusat pada Presiden, bertentangan dengan sila ke-4 Pancasila."
+            },
+            {
+                id: 9,
+                topic: "Implementasi Pancasila Masa Orde Baru (1966–1998)",
+                stimulus: "Pemerintah Orde Baru bertekad melaksanakan Pancasila dan UUD NRI Tahun 1945 secara murni dan konsekuen serta berhasil meningkatkan pembangunan ekonomi. Namun di sisi lain, kebebasan berpendapat dibatasi ketat, kritik terhadap pemerintah dianggap subversif, dan muncul praktik KKN (Korupsi, Kolusi, dan Nepotisme).",
+                question: "Pelajaran berharga dari penerapan Pancasila pada masa Orde Baru agar tidak terulang di masa kini adalah...",
+                options: [
+                    "Pembangunan ekonomi harus dihentikan total agar demokrasi dapat berjalan dengan lancar",
+                    "Pancasila tidak boleh dijadikan alat kekuasaan untuk membungkam kritik rakyat serta harus disertai penegakan hukum yang bebas dari KKN",
+                    "Kebebasan berpendapat harus dibatasi sepenuhnya demi menjaga stabilitas keamanan nasional",
+                    "Pemilihan umum sebaiknya ditiadakan agar anggaran negara dapat dihemat"
+                ],
+                correctIndex: 1,
+                explanation: "Masa Orde Baru mengajarkan bahwa pembangunan harus berjalan seiring dengan penghormatan hak asasi manusia, kebebasan berpendapat yang bertanggung jawab, serta pemberantasan KKN."
+            },
+            {
+                id: 10,
+                topic: "Implementasi Pancasila Masa Reformasi (1998–Sekarang)",
+                stimulus: "Di era Reformasi saat ini, ruang kebebasan berpendapat, kebebasan pers, dan keterbukaan informasi terbuka sangat luas. Namun, kebebasan tanpa batas di ruang digital sering memicu ujaran kebencian (hate speech), perundungan siber, dan menurunnya rasa persatuan di kalangan pelajar.",
+                question: "Tantangan penerapan Pancasila pada masa Reformasi yang tergambar dalam kasus tersebut adalah...",
+                options: [
+                    "Kebebasan yang kebablasan tanpa diimbangi tanggung jawab moral dan penghormatan terhadap nilai persatuan serta kemanusiaan",
+                    "Larangan keras bagi warga negara untuk menyampaikan pendapat di muka umum maupun media sosial",
+                    "Kembalinya sistem pemerintahan sentralistik yang menghapus otonomi daerah di seluruh Indonesia",
+                    "Tidak adanya pemilu langsung untuk memilih presiden dan kepala daerah"
+                ],
+                correctIndex: 0,
+                explanation: "Tantangan utama penerapan Pancasila di era Reformasi bukanlah ancaman pemberontakan bersenjata seperti masa lalu, melainkan kebebasan yang kebablasan (hoaks, ujaran kebencian, individualisme) yang mengancam persatuan."
+            }
+        ];
+
+        // =========================================================
+        // 0. NAVIGASI TAB RINGKASAN MATERI DI HALAMAN AWAL
+        // =========================================================
+        function switchMaterialTab(tabNumber) {
+            for (let i = 1; i <= 3; i++) {
+                const btn = document.getElementById(`mat-tab-${i}`);
+                const panel = document.getElementById(`mat-content-${i}`);
+                const badge = btn.querySelector('span');
+
+                if (i === tabNumber) {
+                    btn.classList.remove('border-slate-200', 'hover:border-garuda-300', 'bg-white');
+                    btn.classList.add('border-garuda-600', 'bg-rose-50/70');
+                    badge.classList.remove('bg-slate-200', 'text-slate-700');
+                    badge.classList.add('bg-garuda-600', 'text-white');
+                    panel.classList.remove('hidden');
+                } else {
+                    btn.classList.add('border-slate-200', 'hover:border-garuda-300', 'bg-white');
+                    btn.classList.remove('border-garuda-600', 'bg-rose-50/70');
+                    badge.classList.add('bg-slate-200', 'text-slate-700');
+                    badge.classList.remove('bg-garuda-600', 'text-white');
+                    panel.classList.add('hidden');
+                }
+            }
+        }
+
+        // =========================================================
+        // 1. VALIDASI & MULAI UJIAN
+        // =========================================================
+        identityForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const namaVal = inputNama.value.trim();
+            const kelasVal = inputKelas.value.trim();
+
+            if (!namaVal || namaVal.length < 3) {
+                formErrorText.textContent = "Mohon tuliskan Nama Lengkap kamu dengan benar (minimal 3 huruf).";
+                formErrorBox.classList.remove('hidden');
+                inputNama.focus();
+                return;
+            }
+
+            if (!kelasVal) {
+                formErrorText.textContent = "Silakan pilih Kelas kamu terlebih dahulu.";
+                formErrorBox.classList.remove('hidden');
+                inputKelas.focus();
+                return;
+            }
+
+            // Sembunyikan pesan error & aktifkan konteks audio
+            formErrorBox.classList.add('hidden');
+            initAudioContext();
+
+            // Simpan identitas
+            studentName = namaVal;
+            studentClass = kelasVal;
+
+            // Update Header
+            headerStudentName.textContent = studentName;
+            headerStudentClass.textContent = "Kelas " + studentClass;
+            examStatusBar.classList.remove('hidden');
+            examStatusBar.classList.add('flex');
+
+            // Reset state soal & timer
+            userAnswers = new Array(quizQuestions.length).fill(null);
+            timeLeftSeconds = 7 * 60; // 7 Menit
+            isDisqualified = false;
+            isExamActive = true;
+
+            // Render Soal & Tampilkan Halaman Ujian
+            renderQuestions();
+            updateProgressUI();
+
+            viewIntro.classList.add('hidden');
+            viewResult.classList.add('hidden');
+            viewCheated.classList.add('hidden');
+            viewQuiz.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Mulai Timer Hitung Mundur
+            startCountdownTimer();
+        });
+
+        // =========================================================
+        // 2. TIMER HITUNG MUNDUR 7 MENIT
+        // =========================================================
+        function startCountdownTimer() {
+            clearInterval(timerInterval);
+            updateTimerDisplay();
+
+            timerInterval = setInterval(() => {
+                if (!isExamActive) {
+                    clearInterval(timerInterval);
+                    return;
+                }
+
+                timeLeftSeconds--;
+                updateTimerDisplay();
+
+                // Peringatan warna merah jika waktu di bawah 1 menit
+                if (timeLeftSeconds <= 60) {
+                    timerBadge.classList.remove('bg-slate-900');
+                    timerBadge.classList.add('bg-red-600', 'animate-pulse');
+                }
+
+                // Waktu Habis -> Otomatis Submit
+                if (timeLeftSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    finishQuiz(true);
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(Math.max(0, timeLeftSeconds) / 60);
+            const secs = Math.max(0, timeLeftSeconds) % 60;
+            timerDisplay.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        // =========================================================
+        // 3. DETEKSI PINDAH TAB / KELUAR HALAMAN (ANTI-CURANG)
+        // =========================================================
+        function triggerCheatingFailure() {
+            if (!isExamActive || isDisqualified) return;
+
+            isExamActive = false;
+            isDisqualified = true;
+            clearInterval(timerInterval);
+
+            // Sembunyikan halaman soal, tampilkan layar merah gagal
+            viewQuiz.classList.add('hidden');
+            viewIntro.classList.add('hidden');
+            viewResult.classList.add('hidden');
+            viewCheated.classList.remove('hidden');
+
+            // Isi data pelanggar
+            document.getElementById('cheat-student-name').textContent = studentName;
+            document.getElementById('cheat-student-class').textContent = studentClass;
+
+            // Ubah warna header jadi merah darurat
+            examStatusBar.classList.add('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Bunyikan alarm keras terus menerus
+            startContinuousAlarm();
+        }
+
+        // Event saat tab disembunyikan atau pindah tab baru
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && isExamActive) {
+                triggerCheatingFailure();
+            }
+        });
+
+        // Event saat jendela browser kehilangan fokus (buka aplikasi lain / split screen)
+        window.addEventListener('blur', () => {
+            if (isExamActive) {
+                triggerCheatingFailure();
+            }
+        });
+
+        // Tombol matikan alarm
+        document.getElementById('btn-stop-alarm').addEventListener('click', () => {
+            stopContinuousAlarm();
+        });
+
+        // =========================================================
+        // 4. RENDER SOAL HOTS & PILIHAN JAWABAN
+        // =========================================================
+        function renderQuestions() {
+            questionsContainer.innerHTML = '';
+            const optionLetters = ['A', 'B', 'C', 'D'];
+
+            quizQuestions.forEach((q, qIndex) => {
+                const card = document.createElement('article');
+                card.className = "bg-white rounded-3xl p-5 sm:p-8 shadow-md border border-slate-200/90 space-y-4";
+
+                // Header Soal (Nomor & Topik)
+                const headerHTML = `
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                        <span class="inline-flex items-center gap-2 font-display font-extrabold text-sm sm:text-base text-garuda-700">
+                            <span class="w-7 h-7 rounded-lg bg-garuda-600 text-white flex items-center justify-center text-xs">${qIndex + 1}</span>
+                            Soal Nomor ${qIndex + 1}
+                        </span>
+                        <span class="text-[11px] font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-600">
+                            ${q.topic}
+                        </span>
+                    </div>
+                `;
+
+                // Kotak Stimulus Kontekstual
+                const stimulusHTML = `
+                    <div class="bg-slate-50 border-l-4 border-garuda-500 rounded-r-2xl p-4 text-sm sm:text-[15px] text-slate-700 leading-relaxed whitespace-pre-line">
+                        <span class="block text-[11px] font-bold uppercase tracking-wider text-garuda-600 mb-1">Cermati Stimulus Berikut:</span>
+                        ${q.stimulus}
+                    </div>
+                `;
+
+                // Pertanyaan Utama
+                const questionHTML = `
+                    <p class="font-semibold text-slate-900 text-base sm:text-[17px] leading-snug pt-1">
+                        ${q.question}
+                    </p>
+                `;
+
+                // Pilihan Jawaban A, B, C, D
+                const optionsWrapper = document.createElement('div');
+                optionsWrapper.className = "space-y-2.5 pt-1";
+
+                q.options.forEach((optText, optIdx) => {
+                    const btnOpt = document.createElement('button');
+                    btnOpt.type = "button";
+                    btnOpt.dataset.qindex = qIndex;
+                    btnOpt.dataset.optindex = optIdx;
+                    btnOpt.className = "option-card w-full text-left p-3.5 sm:p-4 rounded-2xl border-2 border-slate-200 hover:border-garuda-400 hover:bg-rose-50/40 flex items-start gap-3.5 cursor-pointer group";
+
+                    btnOpt.innerHTML = `
+                        <span class="opt-letter w-8 h-8 rounded-xl bg-slate-100 group-hover:bg-garuda-100 text-slate-700 group-hover:text-garuda-700 font-display font-bold text-sm flex items-center justify-center shrink-0 transition">
+                            ${optionLetters[optIdx]}
+                        </span>
+                        <span class="text-sm sm:text-[15px] text-slate-700 font-medium leading-relaxed pt-0.5">
+                            ${optText}
+                        </span>
+                    `;
+
+                    btnOpt.addEventListener('click', () => selectOption(qIndex, optIdx));
+                    optionsWrapper.appendChild(btnOpt);
+                });
+
+                card.innerHTML = headerHTML + stimulusHTML + questionHTML;
+                card.appendChild(optionsWrapper);
+                questionsContainer.appendChild(card);
+            });
+        }
+
+        function selectOption(qIndex, optIdx) {
+            if (!isExamActive) return;
+            userAnswers[qIndex] = optIdx;
+            submitWarningMsg.classList.add('hidden');
+
+            // Perbarui tampilan tombol yang dipilih pada soal terkait
+            const allCards = questionsContainer.children[qIndex].querySelectorAll('.option-card');
+            allCards.forEach((btn, idx) => {
+                const letterSpan = btn.querySelector('.opt-letter');
+                if (idx === optIdx) {
+                    btn.classList.remove('border-slate-200', 'hover:border-garuda-400');
+                    btn.classList.add('border-garuda-600', 'bg-rose-50/80', 'shadow-sm');
+                    letterSpan.classList.remove('bg-slate-100', 'text-slate-700');
+                    letterSpan.classList.add('bg-garuda-600', 'text-white');
+                } else {
+                    btn.classList.add('border-slate-200', 'hover:border-garuda-400');
+                    btn.classList.remove('border-garuda-600', 'bg-rose-50/80', 'shadow-sm');
+                    letterSpan.classList.add('bg-slate-100', 'text-slate-700');
+                    letterSpan.classList.remove('bg-garuda-600', 'text-white');
+                }
+            });
+
+            updateProgressUI();
+        }
+
+        function updateProgressUI() {
+            const answeredCount = userAnswers.filter(ans => ans !== null).length;
+            answeredCounter.textContent = `Terjawab: ${answeredCount} / ${quizQuestions.length}`;
+            const percent = (answeredCount / quizQuestions.length) * 100;
+            progressBarFill.style.width = `${percent}%`;
+        }
+
+        // =========================================================
+        // 5. PENGUMPULAN & PENILAIAN HASIL UJIAN
+        // =========================================================
+        btnSubmitQuiz.addEventListener('click', () => {
+            const unansweredCount = userAnswers.filter(ans => ans === null).length;
+            if (unansweredCount > 0) {
+                submitWarningMsg.textContent = `Masih ada ${unansweredCount} soal yang belum kamu jawab. Lengkapi dulu sebelum mengirim!`;
+                submitWarningMsg.classList.remove('hidden');
+                // Scroll ke soal pertama yang belum dijawab
+                const firstUnanswered = userAnswers.findIndex(ans => ans === null);
+                if (firstUnanswered !== -1) {
+                    questionsContainer.children[firstUnanswered].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                return;
+            }
+            finishQuiz(false);
+        });
+
+        function finishQuiz(isAutoTimeOut) {
+            isExamActive = false;
+            clearInterval(timerInterval);
+
+            // Hitung Skor
+            let correctCount = 0;
+            quizQuestions.forEach((q, idx) => {
+                if (userAnswers[idx] === q.correctIndex) {
+                    correctCount++;
+                }
+            });
+
+            const wrongCount = quizQuestions.length - correctCount;
+            const finalScore = correctCount * 10; // Skala 0 - 100
+
+            // Sembunyikan halaman soal & tampilkan halaman hasil
+            viewQuiz.classList.add('hidden');
+            examStatusBar.classList.add('hidden');
+            viewResult.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Isi data identitas & skor
+            document.getElementById('res-student-name').textContent = studentName;
+            document.getElementById('res-student-class').textContent = studentClass;
+            document.getElementById('result-score-number').textContent = finalScore;
+            document.getElementById('result-correct-count').textContent = `Benar: ${correctCount}`;
+            document.getElementById('result-wrong-count').textContent = `Salah: ${wrongCount}`;
+
+            const heroCard = document.getElementById('result-hero-card');
+            const illustrationBox = document.getElementById('result-illustration');
+            const headline = document.getElementById('result-headline');
+            const subheadline = document.getElementById('result-subheadline');
+            const statusBadge = document.getElementById('res-status-badge');
+            const btnRetry = document.getElementById('btn-retry-result');
+
+            // Logika Percabangan Nilai: Di atas 80 vs Di bawah/sama dengan 80
+            if (finalScore > 80) {
+                // SKOR > 80 (90 atau 100) -> SELAMAT DAN MANTAP + GAMBAR JEMPOL
+                heroCard.className = "rounded-3xl p-6 sm:p-10 text-center shadow-xl border-2 border-emerald-200 bg-gradient-to-b from-emerald-50 via-teal-50 to-white overflow-hidden relative";
+                headline.textContent = "SELAMAT DAN MANTAP!";
+                headline.className = "font-display text-2xl sm:text-4xl font-black tracking-tight mb-2 text-emerald-700";
+                subheadline.textContent = isAutoTimeOut
+                    ? "Waktu habis, namun hasilmu luar biasa! Kamu menguasai materi Pendidikan Pancasila dengan sangat mantap."
+                    : "Luar biasa! Pemahaman analisismu tentang kedudukan, fungsi, dan penerapan Pancasila sangat membanggakan.";
+                subheadline.className = "text-sm sm:text-base max-w-xl mx-auto mb-6 font-medium text-emerald-900";
+                statusBadge.textContent = "SANGAT MEMUASKAN (TUNTAS)";
+                statusBadge.className = "text-emerald-700 font-extrabold";
+                btnRetry.className = "px-8 py-3.5 rounded-2xl font-display font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-600/25 transition active:scale-[0.98] cursor-pointer";
+                btnRetry.textContent = "Kerjakan Ulang";
+
+                // SVG Ilustrasi Jempol Besar (Thumbs Up) Memberi Selamat
+                illustrationBox.innerHTML = `
+                    <svg viewBox="0 0 160 160" class="w-full h-full drop-shadow-lg">
+                        <!-- Lingkaran Cahaya Belakang -->
+                        <circle cx="80" cy="80" r="72" fill="#d1fae5" />
+                        <circle cx="80" cy="80" r="58" fill="#10b981" />
+                        <!-- Bintang-Bintang Perayaan -->
+                        <path d="M28 38 L31 45 L38 45 L32 49 L34 56 L28 52 L22 56 L24 49 L18 45 L25 45 Z" fill="#fbbf24"/>
+                        <path d="M132 34 L134 40 L140 40 L135 44 L137 50 L132 46 L127 50 L129 44 L124 40 L130 40 Z" fill="#fbbf24"/>
+                        <circle cx="34" cy="118" r="5" fill="#34d399"/>
+                        <circle cx="128" cy="112" r="6" fill="#fbbf24"/>
+                        <!-- Manset Kemeja -->
+                        <rect x="42" y="76" width="22" height="44" rx="6" fill="#1e3a8a"/>
+                        <circle cx="53" cy="108" r="3" fill="#93c5fd"/>
+                        <!-- Telapak & Ibu Jari Jempol -->
+                        <path d="M64 78 L78 44 C80 38 89 39 90 46 L88 68 L112 68 C119 68 123 74 121 80 C123 84 122 90 118 93 C120 97 118 103 114 105 C115 110 111 116 105 116 L64 116 Z" fill="#fde68a" stroke="#f59e0b" stroke-width="2.5" stroke-linejoin="round"/>
+                        <!-- Garis Jari -->
+                        <line x1="98" y1="80" x2="118" y2="80" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round"/>
+                        <line x1="98" y1="93" x2="116" y2="93" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round"/>
+                        <line x1="98" y1="105" x2="112" y2="105" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round"/>
+                    </svg>
+                `;
+
+                playSuccessFanfare();
+                launchConfetti();
+            } else {
+                // SKOR <= 80 -> YUKK SEMANGAT DAN COBA LAGI + GAMBAR SENYUM
+                heroCard.className = "rounded-3xl p-6 sm:p-10 text-center shadow-xl border-2 border-amber-200 bg-gradient-to-b from-amber-50 via-orange-50 to-white overflow-hidden relative";
+                headline.textContent = "YUKK SEMANGAT DAN COBA LAGI!";
+                headline.className = "font-display text-2xl sm:text-4xl font-black tracking-tight mb-2 text-amber-700";
+                subheadline.textContent = isAutoTimeOut
+                    ? "Waktu telah habis dan nilaimu belum melampaui 80. Baca kembali pembahasan di bawah, lalu coba lagi ya!"
+                    : "Kamu sudah berusaha dengan baik! Nilai tuntas adalah di atas 80. Yuk baca pembahasan di bawah ini dan coba lagi!";
+                subheadline.className = "text-sm sm:text-base max-w-xl mx-auto mb-6 font-medium text-amber-900";
+                statusBadge.textContent = "PERLU LATIHAN LAGI (TARGET > 80)";
+                statusBadge.className = "text-amber-700 font-extrabold";
+                btnRetry.className = "px-8 py-3.5 rounded-2xl font-display font-bold text-white bg-amber-500 hover:bg-amber-600 shadow-lg shadow-amber-500/25 transition active:scale-[0.98] cursor-pointer";
+                btnRetry.textContent = "Yukk Coba Lagi Sekarang";
+
+                // SVG Ilustrasi Wajah Tersenyum (Smiling Face) yang Memberi Semangat
+                illustrationBox.innerHTML = `
+                    <svg viewBox="0 0 160 160" class="w-full h-full drop-shadow-lg">
+                        <!-- Lingkaran Latar Hangat -->
+                        <circle cx="80" cy="80" r="72" fill="#fef3c7" />
+                        <!-- Wajah Bulat Kuning Cerah -->
+                        <circle cx="80" cy="80" r="56" fill="#fbbf24" stroke="#f59e0b" stroke-width="3"/>
+                        <!-- Pipi Merona Semangat -->
+                        <ellipse cx="52" cy="88" rx="9" ry="5.5" fill="#fb7185" opacity="0.65"/>
+                        <ellipse cx="108" cy="88" rx="9" ry="5.5" fill="#fb7185" opacity="0.65"/>
+                        <!-- Mata Berbinar Ramah -->
+                        <path d="M52 68 Q60 58 68 68" fill="none" stroke="#78350f" stroke-width="4.5" stroke-linecap="round"/>
+                        <path d="M92 68 Q100 58 108 68" fill="none" stroke="#78350f" stroke-width="4.5" stroke-linecap="round"/>
+                        <!-- Senyum Lebar Penuh Semangat -->
+                        <path d="M54 92 Q80 118 106 92" fill="none" stroke="#78350f" stroke-width="5" stroke-linecap="round"/>
+                        <!-- Percikan Energi Semangat -->
+                        <path d="M128 32 L131 40 L139 43 L131 46 L128 54 L125 46 L117 43 L125 40 Z" fill="#f97316"/>
+                        <circle cx="30" cy="44" r="5" fill="#fb923c"/>
+                    </svg>
+                `;
+
+                playEncourageChime();
+            }
+
+            // Render Pembahasan Soal
+            renderReviewSection();
+        }
+
+        function renderReviewSection() {
+            const reviewContainer = document.getElementById('review-container');
+            reviewContainer.innerHTML = '';
+            const optionLetters = ['A', 'B', 'C', 'D'];
+
+            quizQuestions.forEach((q, idx) => {
+                const userAns = userAnswers[idx];
+                const isCorrect = userAns === q.correctIndex;
+
+                const item = document.createElement('div');
+                item.className = `p-4 sm:p-5 rounded-2xl border ${isCorrect ? 'border-emerald-200 bg-emerald-50/40' : 'border-rose-200 bg-rose-50/40'} space-y-2`;
+
+                const userChoiceText = userAns !== null
+                    ? `${optionLetters[userAns]}. ${q.options[userAns]}`
+                    : "Tidak dijawab";
+                const correctChoiceText = `${optionLetters[q.correctIndex]}. ${q.options[q.correctIndex]}`;
+
+                item.innerHTML = `
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="font-display font-bold text-sm text-slate-800">Soal ${idx + 1} • ${q.topic}</span>
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${isCorrect ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+                            ${isCorrect ? '✓ Benar' : '✕ Kurang Tepat'}
+                        </span>
+                    </div>
+                    <p class="text-sm font-medium text-slate-800">${q.question}</p>
+                    <div class="text-xs space-y-1 pt-1">
+                        <p class="${isCorrect ? 'text-emerald-700' : 'text-rose-700'} font-semibold">
+                            Jawabanmu: ${userChoiceText}
+                        </p>
+                        ${!isCorrect ? `<p class="text-emerald-700 font-semibold">Kunci Jawaban: ${correctChoiceText}</p>` : ''}
+                    </div>
+                    <div class="bg-white/80 p-3 rounded-xl border border-slate-200/70 text-xs text-slate-600 leading-relaxed mt-2">
+                        <strong class="text-slate-800">Pembahasan:</strong> ${q.explanation}
+                    </div>
+                `;
+
+                reviewContainer.appendChild(item);
+            });
+        }
+
+        // =========================================================
+        // 6. RESET ULANG UJIAN KE HALAMAN AWAL
+        // =========================================================
+        function resetQuizToHome() {
+            stopContinuousAlarm();
+            stopConfetti();
+            clearInterval(timerInterval);
+
+            isExamActive = false;
+            isDisqualified = false;
+            timeLeftSeconds = 7 * 60;
+            userAnswers = new Array(quizQuestions.length).fill(null);
+
+            timerBadge.classList.add('bg-slate-900');
+            timerBadge.classList.remove('bg-red-600', 'animate-pulse');
+            examStatusBar.classList.add('hidden');
+            examStatusBar.classList.remove('flex');
+
+            viewCheated.classList.add('hidden');
+            viewResult.classList.add('hidden');
+            viewQuiz.classList.add('hidden');
+            viewIntro.classList.remove('hidden');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // =========================================================
+        // 7. EFEK CONFETTI RINGAN (UNTUK SKOR > 80)
+        // =========================================================
+        let confettiAnimationId = null;
+        function launchConfetti() {
+            const canvas = document.getElementById('confetti-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const colors = ['#e11d48', '#fbbf24', '#10b981', '#3b82f6', '#f97316'];
+            const pieces = Array.from({ length: 90 }, () => ({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height - canvas.height,
+                w: Math.random() * 10 + 6,
+                h: Math.random() * 6 + 4,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                speedY: Math.random() * 3 + 2,
+                speedX: Math.random() * 2 - 1,
+                angle: Math.random() * 360,
+                spin: Math.random() * 6 - 3
+            }));
+
+            let frames = 0;
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                pieces.forEach(p => {
+                    p.y += p.speedY;
+                    p.x += p.speedX;
+                    p.angle += p.spin;
+                    if (p.y > canvas.height) {
+                        p.y = -10;
+                        p.x = Math.random() * canvas.width;
+                    }
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate((p.angle * Math.PI) / 180);
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+                    ctx.restore();
+                });
+
+                frames++;
+                if (frames < 360) { // Berlangsung sekitar 6 detik
+                    confettiAnimationId = requestAnimationFrame(draw);
+                } else {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+            }
+            draw();
+        }
+
+        function stopConfetti() {
+            if (confettiAnimationId) {
+                cancelAnimationFrame(confettiAnimationId);
+                confettiAnimationId = null;
+            }
+            const canvas = document.getElementById('confetti-canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+    </script>
+</body>
+</html>
